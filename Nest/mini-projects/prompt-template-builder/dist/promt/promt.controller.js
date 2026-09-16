@@ -10,7 +10,7 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 var __param = (this && this.__param) || function (paramIndex, decorator) {
     return function (target, key) { decorator(target, key, paramIndex); }
 };
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseArrayPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseArrayPipe, ParseIntPipe } from '@nestjs/common';
 import { PromtService } from './promt.service.js';
 import { CreatePromtDto } from './dto/create-promt.dto.js';
 import { UpdatePromtDto } from './dto/update-promt.dto.js';
@@ -27,6 +27,9 @@ let PromtController = class PromtController {
     }
     findOne(id) {
         return this.promtService.findOne(+id);
+    }
+    compilePrompt(id, variables) {
+        return this.promtService.compilePrompt(id, variables);
     }
     update(id, updatePromtDto) {
         return this.promtService.update(+id, updatePromtDto);
@@ -54,8 +57,16 @@ __decorate([
     __param(0, Param('id')),
     __metadata("design:type", Function),
     __metadata("design:paramtypes", [String]),
-    __metadata("design:returntype", void 0)
+    __metadata("design:returntype", Object)
 ], PromtController.prototype, "findOne", null);
+__decorate([
+    Post(':id/compile'),
+    __param(0, Param('id', ParseIntPipe)),
+    __param(1, Body()),
+    __metadata("design:type", Function),
+    __metadata("design:paramtypes", [Number, Object]),
+    __metadata("design:returntype", void 0)
+], PromtController.prototype, "compilePrompt", null);
 __decorate([
     Patch(':id'),
     __param(0, Param('id')),

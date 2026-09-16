@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException} from '@nestjs/common';
 import { CreatePromtDto } from './dto/create-promt.dto.js';
 import { UpdatePromtDto } from './dto/update-promt.dto.js';
 import { Promt } from './entities/promt.entity.js';
@@ -36,8 +36,37 @@ export class PromtService {
 
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} promt`;
+  findOne(id: number): Promt {
+    const foundObj = this.promt.find(prompt => prompt.id === id)
+
+    if(foundObj){
+      return foundObj
+    }
+    throw new NotFoundException(`The prompt with id: ${id} couldn't be found`)
+    
+  }
+
+  compilePrompt(id: number, variables: Record<string,string>){
+    // Pattern to match {{key}} and capture "key" inside group 1
+    const variableExtractor = /\{\{\s*(\w+)\s*\}\}/g;
+
+    const prompt = this.findOne(id);
+    const template = prompt.template
+
+    // Extract unique variable names as string[]
+    const requiredVars = [
+      ...new Set([...template.matchAll(variableExtractor)].map(m => m[1]))
+    ];
+
+    console.log('Extracted Variables:', requiredVars)
+    console.log('Extracted Variables:', variables)
+
+    template.replace(variableExtractor, (match, key) => {
+    // If the variable was supplied, substitute it; otherwise keep or throw
+    if (key in variables) {
+      return variables[key];
+    })
+    
   }
 
   update(id: number, updatePromtDto: UpdatePromtDto) {

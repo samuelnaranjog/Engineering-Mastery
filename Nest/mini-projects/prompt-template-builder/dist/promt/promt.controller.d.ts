@@ -7,7 +7,8 @@ export declare class PromtController {
     constructor(promtService: PromtService);
     create(createPromtDto: CreatePromtDto): Promt;
     findAll(tags?: string[]): Promt[];
-    findOne(id: string): string;
+    findOne(id: string): Promt;
+    compilePrompt(id: number, variables: Record<string, string>): void;
     update(id: string, updatePromtDto: UpdatePromtDto): string;
     remove(id: string): string;
 }

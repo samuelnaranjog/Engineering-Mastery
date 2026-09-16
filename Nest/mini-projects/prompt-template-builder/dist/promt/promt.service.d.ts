@@ -6,7 +6,8 @@ export declare class PromtService {
     id: number;
     create(createPromtDto: CreatePromtDto): Promt;
     findAll(tags?: string[]): Promt[];
-    findOne(id: number): string;
+    findOne(id: number): Promt;
+    compilePrompt(id: number, variables: Record<string, string>): void;
     update(id: number, updatePromtDto: UpdatePromtDto): string;
     remove(id: number): string;
 }

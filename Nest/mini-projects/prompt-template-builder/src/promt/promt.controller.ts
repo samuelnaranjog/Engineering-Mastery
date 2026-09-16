@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseArrayPipe } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, Query, ParseArrayPipe, ParseIntPipe } from '@nestjs/common';
 import { PromtService } from './promt.service.js';
 import { CreatePromtDto } from './dto/create-promt.dto.js';
 import { UpdatePromtDto } from './dto/update-promt.dto.js';
@@ -22,8 +22,14 @@ export class PromtController {
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
+  findOne(@Param('id') id: string): Promt{
     return this.promtService.findOne(+id);
+  }
+
+  // V-4 Compile Post
+  @Post(':id/compile')
+  compilePrompt(@Param('id', ParseIntPipe) id: number, @Body() variables:Record<string,string> ){
+    return this.promtService.compilePrompt(id, variables)
   }
 
   @Patch(':id')
