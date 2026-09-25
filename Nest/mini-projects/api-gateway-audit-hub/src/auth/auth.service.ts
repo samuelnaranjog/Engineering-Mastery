@@ -20,6 +20,7 @@ export class AuthService {
     }
 
     this.apiKeysMap.set(keyObj.key, keyObj)
+    console.log('POST: Checking current stored keys:', this.apiKeysMap )
 
     const returnObj = {
       key: keyObj['key'],
@@ -29,6 +30,7 @@ export class AuthService {
   }
 
   validateAndDeduct(apiKey: string) {
+    console.log('Before: Checking current stored keys:', this.apiKeysMap )
     const keyRecord = this.apiKeysMap.get(apiKey);
     if (!keyRecord) return { valid: false, reason: 'NOT_FOUND' };
     if (keyRecord.remainingQuota <= 0) return { valid: false, reason: 'EXHAUSTED' };

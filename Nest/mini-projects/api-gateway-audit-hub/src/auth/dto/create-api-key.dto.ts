@@ -1,6 +1,6 @@
 import { IsInt, IsNotEmpty, IsPositive, IsString } from "class-validator";
 
-export classCreateApiKeyDto {
+export class CreateApiKeyDto {
     @IsString()
     @IsNotEmpty()
     owner: string

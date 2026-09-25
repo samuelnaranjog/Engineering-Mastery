@@ -7,23 +7,14 @@ import  {Article, initialArticles} from './entities/articles.entity.js'
 export class ContentService {
   private articles: Article[] = [...initialArticles]
 
-  create(createContentDto: CreateContentDto) {
-    return 'This action adds a new content';
-  }
-
   findAll() {
-    return `This action returns all content`;
+    return this.articles;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} content`;
+  findByOwner(owner: string ){
+    const ownerArticles = this.articles.filter(article => article.owner == owner)
+    return ownerArticles
   }
 
-  update(id: number, updateContentDto: UpdateContentDto) {
-    return `This action updates a #${id} content`;
-  }
 
-  remove(id: number) {
-    return `This action removes a #${id} content`;
-  }
 }

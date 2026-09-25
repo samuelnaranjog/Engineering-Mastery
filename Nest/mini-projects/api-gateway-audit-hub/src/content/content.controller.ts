@@ -1,34 +1,30 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Patch, Param, Delete, UseGuards, UseInterceptors } from '@nestjs/common';
 import { ContentService } from './content.service.js';
 import { CreateContentDto } from './dto/create-content.dto.js';
 import { UpdateContentDto } from './dto/update-content.dto.js';
+import { ApiKeyGuard } from '../auth/guards/api-key/api-key.guard.js';
+import { LoggingInterceptor } from '../audit/interceptors/logging.interceptor.js';
+import { ApiKeyOwner } from '../auth/decorators/api-key-owner.decorator.js';
 
 @Controller('content')
 export class ContentController {
   constructor(private readonly contentService: ContentService) {}
 
-  @Post()
-  create(@Body() createContentDto: CreateContentDto) {
-    return this.contentService.create(createContentDto);
-  }
-
-  @Get()
+  @UseInterceptors(LoggingInterceptor)
+  @Get('articles/overview')
   findAll() {
     return this.contentService.findAll();
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.contentService.findOne(+id);
+  @UseInterceptors(LoggingInterceptor)
+  @UseGuards(ApiKeyGuard)
+  @Get('articles')
+  getArticles(@ApiKeyOwner() owner : string){
+    return this.contentService.findByOwner(owner)
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateContentDto: UpdateContentDto) {
-    return this.contentService.update(+id, updateContentDto);
-  }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.contentService.remove(+id);
-  }
+
+
+
 }
