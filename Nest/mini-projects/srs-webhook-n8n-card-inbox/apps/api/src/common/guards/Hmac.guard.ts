@@ -2,6 +2,7 @@ import { CanActivate, ExecutionContext, Injectable, UnauthorizedException } from
 import { Observable } from 'rxjs';
 import * as crypto from 'node:crypto';
 import type { Request } from 'express';
+import { ConfigService } from '@nestjs/config';
 
 interface RawBodyRequest extends Request {
   rawBody?: Buffer;
@@ -10,6 +11,17 @@ interface RawBodyRequest extends Request {
 
 @Injectable()
 export default class HmacGuard implements CanActivate{
+     private readonly secret: string
+     
+     constructor(private readonly configService: ConfigService) {
+          const secret = this.configService.get<string>('WEBHOOK_SECRET');
+          if (!secret) {
+            throw new Error('WEBHOOK_SECRET is not defined in environment variables');
+          }
+          this.secret = secret;
+     }
+
+
     canActivate(context: ExecutionContext): boolean | Promise<boolean> | Observable<boolean> {
         const req = context.switchToHttp().getRequest<RawBodyRequest>() 
         const signature = req.headers['x-signature'] as string | undefined;

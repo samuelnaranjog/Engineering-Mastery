@@ -7,3 +7,9 @@ export interface CalculateInput {
 export interface CalculateResult {
   result: number;
 }
+
+export interface CreateCard {
+  front: string,
+  back: string,
+  deck: string,
+}

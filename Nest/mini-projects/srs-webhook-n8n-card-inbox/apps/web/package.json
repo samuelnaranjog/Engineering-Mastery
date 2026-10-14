@@ -10,7 +10,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
-    "@project/shared-types": "*",
+    "@project/shared-types": "workspace:*",
     "react": "^19.2.8",
     "react-dom": "^19.2.8"
   },
