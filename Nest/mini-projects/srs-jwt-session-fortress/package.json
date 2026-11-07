@@ -1,0 +1,22 @@
+{
+  "name": "fullstack-workspace",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently -n \"API,WEB\" -c \"magenta,cyan\" \"npm run start:dev --workspace=api\" \"npm run dev --workspace=web\"",
+    "build": "npm run build --workspaces",
+    "lint": "npm run lint --workspaces",
+    "test": "npm run test --workspaces",
+    "n8n": "N8N_USER_FOLDER=./.n8n N8N_BLOCK_ENV_ACCESS_IN_NODE=false WEBHOOK_SECRET=my-secret-key NODE_FUNCTION_ALLOW_BUILTIN=crypto N8N_PORT=5678 npx n8n"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "n8n": "^2.43.4"
+  },
+  "dependencies": {
+    "@tanstack/react-query": "^5.106.1"
+  }
+}
