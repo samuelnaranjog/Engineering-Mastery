@@ -1,15 +1,16 @@
 import { sqliteTable, text, integer, blob } from 'drizzle-orm/sqlite-core';
 import { sql, relations } from 'drizzle-orm';
+import { cards_inbox } from './cards.schema.js';
 
 export const users = sqliteTable("users", {
-    id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }).notNull(),
     email: text('email').unique().notNull(),
     passwordHash: text().notNull(),
 })
 
 export const refresh_tokens = sqliteTable("refresh_tokens", {
-    id: integer("id").primaryKey({ autoIncrement: true }).unique().notNull(),
-    userId: integer("userId").unique().notNull(),
+    id: integer("id").primaryKey({ autoIncrement: true }).notNull(),
+    userId: integer("userId").notNull(),
     tokenHash: text('tokenHash').notNull(),
     expiresAt: integer('expiresAt').notNull(),
     revoked: integer('revoked', { mode: 'boolean' }).notNull().default(false),
@@ -25,7 +26,8 @@ export type NewRefreshToken = typeof refresh_tokens.$inferInsert;
 
 // Acts as the switch 
 export const userRelations = relations(users, ({many}) => ({
-    refreshToken: many(refresh_tokens)
+    refreshToken: many(refresh_tokens),
+    cards: many(cards_inbox)
 }))
 
 // Acts as the plug or child contianign the foreign key

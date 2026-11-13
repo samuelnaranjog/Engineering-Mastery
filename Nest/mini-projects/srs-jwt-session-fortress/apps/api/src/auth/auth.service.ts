@@ -128,34 +128,38 @@ export class AuthService {
     await this.db
       .insert(refresh_tokens)
       .values(tokenData)
-      .onConflictDoUpdate({
-        target: refresh_tokens.userId,
-        set: {
-          tokenHash: tokenData.tokenHash,
-          expiresAt: tokenData.expiresAt,
-          revoked: false,
-        },
-      });
+      // .onConflictDoUpdate({
+      //   target: refresh_tokens.userId,
+      //   set: {
+      //     tokenHash: tokenData.tokenHash,
+      //     expiresAt: tokenData.expiresAt,
+      //     revoked: false,
+      //   },
+      // });
   }
 
   private generateAccessToken(userId: number | string): string {
-    // Access tokens should contain the user data and expiration for verification
-    const payloadObj = {
+    // 1. Static JWT metadata (NOT an HTTP header)
+    const jwtHeader = { alg: 'HS256', typ: 'JWT' };
+    
+    // 2. The token claims
+    const payload = {
       sub: userId,
       exp: Date.now() + FIFTEEN_MINUTES_MS,
     };
 
-    // Convert payload to base64url so it safely travels in headers
-    const payloadB64 = Buffer.from(JSON.stringify(payloadObj)).toString('base64url');
+    // 3. Encode both to base64url
+    const encodedHeader = Buffer.from(JSON.stringify(jwtHeader)).toString('base64url');
+    const encodedPayload = Buffer.from(JSON.stringify(payload)).toString('base64url');
 
+    // 4. Sign the combination
     const signature = crypto
       .createHmac('sha256', this.accessSecret)
-      .update(payloadB64)
+      .update(`${encodedHeader}.${encodedPayload}`)
       .digest('base64url');
 
-    const JWT = `${payloadB64}.${signature}`;
-    console.log('Generated access token:', JWT);
-    return JWT;
+    // 5. Result: A standard RFC 7519 3-part JWT
+    return `${encodedHeader}.${encodedPayload}.${signature}`;
   }
 
   async refreshAccessToken(refreshToken: string) {

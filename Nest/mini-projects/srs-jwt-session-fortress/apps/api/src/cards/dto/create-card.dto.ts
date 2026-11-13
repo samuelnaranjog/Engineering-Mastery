@@ -1,7 +1,11 @@
 import type {CreateCard} from '@project/shared-types'
-import { IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import { IsNotEmpty, IsString, MaxLength, IsNumber} from 'class-validator';
 
 export class CreateCardDto implements CreateCard {
+    @IsNumber()
+    @IsNotEmpty()
+    userId: number;
+
     @IsString()
     @IsNotEmpty()
     front: string;

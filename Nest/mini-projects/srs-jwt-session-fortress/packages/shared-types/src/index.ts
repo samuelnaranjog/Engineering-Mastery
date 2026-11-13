@@ -1,4 +1,10 @@
 // packages/shared-types/src/index.ts
+import type { SelectCard } from '../../../apps/api/src/database/schema';
+export type * from './card.entities.ts'
+
+export type DbCard = SelectCard;
+
+
 export interface CalculateInput {
   n1: number;
   n2: number;
@@ -40,4 +46,13 @@ export interface CardInboxItem {
   // Over HTTP/JSON, Date objects serialize to ISO-8601 strings
   receivedAt: Date; 
   reviewedAt: Date | null;
+}
+
+
+// Define the shape of the card returned from the n8n webhook
+export interface GeneratedCardResponse {
+  front: string;
+  back: string;
+  deck: string;
+  userId: string;
 }

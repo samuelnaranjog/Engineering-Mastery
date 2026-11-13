@@ -29,35 +29,60 @@ export class AuthGuard implements CanActivate {
       throw new UnauthorizedException('Access token is missing');
     }
 
-    // Check if the access token contains a valid value and a valid user id
-    const regex = /(?<=^Bearer )(?<payload>[^.]+)\.(?<signature>[^.]+)/
+    // 1. Match 3 segments: Header.Payload.Signature
+      const regex = /^Bearer (?<header>[^.]+)\.(?<payload>[^.]+)\.(?<signature>[^.]+)$/;
+      const match = accessToken.match(regex);
 
-    const data = accessToken.match(regex);
+      if (!match?.groups) {
+        throw new UnauthorizedException('Malformed or missing Bearer token format');
+      }
 
-    if (!data?.groups) {
-      throw new UnauthorizedException('Malformed or missing Bearer token format');
-    }
+      const { header, payload, signature } = match.groups;
 
-    const  { payload, signature } = data?.groups ;
+      // 2. Re-create the HMAC hash over `${header}.${payload}`
+      const expectedSignature = crypto
+        .createHmac('sha256', this.accessSecret)
+        .update(`${header}.${payload}`)
+        .digest('base64url');
+
+      // Constant-time comparison to prevent timing attacks
+      const sigBuffer = Buffer.from(signature);
+      const expectedBuffer = Buffer.from(expectedSignature);
+
+      if (
+        sigBuffer.length !== expectedBuffer.length ||
+        !crypto.timingSafeEqual(sigBuffer, expectedBuffer)
+      ) {
+        throw new UnauthorizedException('Invalid access token signature');
+      }
+
+      // 3. Decode payload
+      let parsedPayload: { sub?: number | string; exp?: number; [key: string]: any };
+      try {
+        const jsonString = Buffer.from(payload, 'base64url').toString('utf-8');
+        parsedPayload = JSON.parse(jsonString);
+      } catch {
+        throw new UnauthorizedException('Invalid access token payload format');
+      }
+
+      // 4. Validate claims
+      if (!parsedPayload.sub) {
+        throw new UnauthorizedException(
+          'Access token payload does not contain a valid user ID (sub)',
+        );
+      }
+
+      if (!parsedPayload.exp || parsedPayload.exp < Date.now()) {
+        throw new UnauthorizedException('Access token has expired');
+      }
+
+      // 5. Attach user info to the request for downstream controllers
+      request['user'] = {
+        id: parsedPayload.sub,
+        ...parsedPayload,
+      };
+
+      return true;
     
-    crypto.createHmac('sha256', this.accessSecret)
-      .update(payload)
-      .digest('base64url') === signature || (() => { throw new UnauthorizedException('Invalid access token signature') })();
-
-    const jsonString = Buffer.from(payload, 'base64url').toString('utf-8') || (() => { throw new UnauthorizedException('Invalid access token payload') })();
-    const parsedPayload = JSON.parse(jsonString) || (() => { throw new UnauthorizedException('Invalid access token payload') })();
-
-    if (!parsedPayload.sub) {
-      throw new UnauthorizedException('Access token payload does not contain a valid user ID (sub)');
-    }
-
-    if (parsedPayload.exp < Date.now()) {
-      throw new UnauthorizedException('Access token is expired');
-    } 
-
-    console.log('Access token payload:', parsedPayload);
-    console.log('Access token match result:', data);
-    return true
-
   }
 }

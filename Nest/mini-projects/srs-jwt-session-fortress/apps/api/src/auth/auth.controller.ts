@@ -12,7 +12,8 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   async login(
     @Body() loginDto: LoginDto,
-    @Res({ passthrough: true }) res: Response
+    @Res({ passthrough: true }) res: Response,
+    
   ) {
     // Must await the promise
     const { user, accessToken, rawRefreshToken } =

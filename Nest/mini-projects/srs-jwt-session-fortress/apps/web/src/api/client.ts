@@ -72,7 +72,6 @@ fetchBackend.interceptors.response.use(
             queryClient.setQueryData(['isAuthenticated'], false);
           }
         }
-
         return Promise.reject(refreshError);
       }
     }

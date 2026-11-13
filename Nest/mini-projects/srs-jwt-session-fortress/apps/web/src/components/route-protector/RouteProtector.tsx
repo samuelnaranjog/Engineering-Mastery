@@ -3,6 +3,9 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchBackend } from "../../api/client";
 import axios from "axios";
 
+
+import VerticalNavbar from "../navbar/VerticalNavbar";
+
 export default function ProtectedRoute() {
 
     // 1. useQuery subscribes to the cache and provides the loading state
@@ -48,8 +51,24 @@ export default function ProtectedRoute() {
 
     // 4. If authorized, render the nested routes
     if (isAuth === true) {
-        console.log('✅ User is authenticated, rendering protected route');
-        return <Outlet />;
+        console.log('✅ User is authenticated, rendering protected layout');
+        
+        // 2. Wrap the Outlet in the master layout
+        return (
+            
+            <div className="min-h-screen bg-[#f4efe6] flex">
+
+                {/* Fixed sidebar */}
+                <VerticalNavbar />
+
+                {/* Main content area pushed to the right */}
+                <main className="flex-1 ml-[120px] min-h-screen p-8">
+                    <div className="max-w-5xl mx-auto">
+                        <Outlet /> 
+                    </div>
+                </main>
+            </div>
+        );
     }
 
     // Fallback if state is somehow neither true, false, nor loading

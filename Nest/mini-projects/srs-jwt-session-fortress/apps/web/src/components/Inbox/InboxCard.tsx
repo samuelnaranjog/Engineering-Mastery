@@ -16,21 +16,19 @@ export default  function InboxCard ({card, onReviewed}: CardProps){
         const payload: ReviewCard  = {status: action} 
         console.log("DEBUG INBOX CARD: payload:", payload)
         try{
-            const returnedCard = await fetchBackend<CardInboxItem>(`/cards/${card.id}/decision`,{
-                method: 'POST',
-                body: JSON.stringify({
-                    ...payload
-                }),
-             })
+            // 1. Type it as the actual item the database returns
+            const returnedCard: CardInboxItem = await fetchBackend.post(`/cards/${card.id}/decision`, payload);
 
-             console.log(`Card with id: ${returnedCard.id} Status updated to ${returnedCard.status}`)
+            // 2. Access the properties directly on the returned object
+            console.log(`Card with id: ${returnedCard.id} Status updated to ${returnedCard.status}`);
 
             if (returnedCard && returnedCard.status === action) {
-                onReviewed(card.id); // Delete card from UI now
+                onReviewed(card.id); 
             }
             
         }
         catch (error) {
+            console.log('This is the value of card', card)
             console.error(`Failed to update card #${card.id}:`, error);
             // Optional: alert user or add rollback logic if request fails
         }
